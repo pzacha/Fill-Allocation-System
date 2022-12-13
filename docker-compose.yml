@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  controller:
+    build: ./controller
+    command: python ./controller.py
+    volumes:
+      - ./controller:/app
+    ports:
+      - 8000:8000
+    expose:
+      - 8000
+
+  fill_servers:
+    build: ./fill_servers
+    command: python ./fill_servers.py
+    volumes:
+      - ./fill_servers:/app
+    environment:
+      - TIME_INTERVAL_LIMIT=5
+      - PRICE_FLUCTUATION_PERCENTAGE_LIMIT=50
+      - QUANTITY_LIMIT=100
+    depends_on:
+      - controller
+
+  aum:
+    build: ./aum
+    command: python ./aum.py
+    volumes:
+      - ./aum:/app
+    environment:
+      - ACCOUNT_NUMBER_LIMIT=20
+      - ACCOUNT_CREATION_CHANCE=20
+    depends_on:
+      - controller
+
+  position:
+    build: ./position
+    command: python ./position.py
+    volumes:
+      - ./position:/app
+    depends_on:
+      - controller
